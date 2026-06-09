@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Pricing Table</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg-1:#0b1020;
+    --bg-2:#171f3a;
+    --bg-3:#3b1d52;
+    --card:rgba(255,255,255,0.08);
+    --border:rgba(255,255,255,0.12);
+    --text:#ffffff;
+    --muted:#b8bfd3;
+    --accent:#7c5cff;
+    --accent2:#00d4ff;
+}
+
+body{
+    min-height:100vh;
+    display:grid;
+    place-items:center;
+    padding:50px 20px;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    color:var(--text);
+    overflow-x:hidden;
+    background:linear-gradient(
+        -45deg,
+        var(--bg-1),
+        var(--bg-2),
+        var(--bg-3),
+        #0f172a
+    );
+    background-size:400% 400%;
+    animation:gradientMove 14s ease infinite;
+}
+
+@keyframes gradientMove{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+.wrapper{
+    width:min(1200px,100%);
+}
+
+.title{
+    text-align:center;
+    margin-bottom:50px;
+}
+
+.title h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(2rem,5vw,4rem);
+    margin-bottom:10px;
+}
+
+.title p{
+    color:var(--muted);
+}
+
+.pricing-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:30px;
+}
+
+.card{
+    position:relative;
+    background:var(--card);
+    backdrop-filter:blur(18px);
+    border:1px solid var(--border);
+    border-radius:28px;
+    padding:35px;
+    overflow:hidden;
+    transition:.45s ease;
+    animation:floatCard 5s ease-in-out infinite;
+}
+
+@keyframes floatCard{
+    0%,100%{
+        transform:translateY(0);
+    }
+    50%{
+        transform:translateY(-8px);
+    }
+}
+
+.card:hover{
+    transform:translateY(-15px) scale(1.03);
+    box-shadow:
+    0 25px 50px rgba(124,92,255,.35),
+    0 0 40px rgba(0,212,255,.15);
+}
+
+.plan{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:1.7rem;
+    font-weight:700;
+}
+
+.price{
+    font-size:3rem;
+    font-weight:800;
+    margin:20px 0 5px;
+}
+
+.period{
+    color:var(--muted);
+    margin-bottom:25px;
+}
+
+.desc{
+    color:var(--muted);
+    margin-bottom:25px;
+    line-height:1.6;
+}
+
+.features{
+    list-style:none;
+    display:grid;
+    gap:14px;
+    margin-bottom:30px;
+}
+
+.features li{
+    color:#edf1ff;
+}
+
+.features li::before{
+    content:"✓ ";
+    color:var(--accent2);
+    font-weight:bold;
+}
+
+.btn{
+    display:block;
+    text-align:center;
+    text-decoration:none;
+    color:white;
+    padding:14px;
+    border-radius:14px;
+    font-weight:700;
+    background:linear-gradient(
+        135deg,
+        var(--accent),
+        var(--accent2)
+    );
+    background-size:200% 200%;
+    transition:.4s;
+}
+
+.btn:hover{
+    background-position:right center;
+    transform:scale(1.03);
+}
+
+.pro{
+    border:1px solid rgba(124,92,255,.5);
+    transform:scale(1.05);
+    box-shadow:
+    0 0 30px rgba(124,92,255,.25);
+}
+
+.pro:hover{
+    transform:translateY(-15px) scale(1.08);
+}
+
+.badge{
+    position:absolute;
+    top:18px;
+    right:18px;
+    background:linear-gradient(
+        135deg,
+        #7c5cff,
+        #00d4ff
+    );
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:.8rem;
+    font-weight:700;
+}
+
+@media (max-width:900px){
+    .pricing-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media (max-width:700px){
+    .pricing-grid{
+        grid-template-columns:1fr;
+    }
+
+    .pro{
+        transform:none;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+    <div class="title">
+        <h1>Choose Your Plan</h1>
+        <p>Flexible pricing for individuals, startups and enterprises.</p>
+    </div>
+
+    <div class="pricing-grid">
+
+        <!-- Basic -->
+        <div class="card">
+            <h2 class="plan">Basic</h2>
+            <div class="price">₹499</div>
+            <div class="period">per month</div>
+
+            <p class="desc">
+                Perfect for beginners and personal projects.
+            </p>
+
+            <ul class="features">
+                <li>5 Projects</li>
+                <li>10GB Storage</li>
+                <li>Email Support</li>
+                <li>Basic Analytics</li>
+                <li>Community Access</li>
+            </ul>
+
+            <a href="#" class="btn">Get Started</a>
+        </div>
+
+        <!-- Pro -->
+        <div class="card pro">
+            <div class="badge">Most Popular</div>
+
+            <h2 class="plan">Pro</h2>
+            <div class="price">₹1,499</div>
+            <div class="period">per month</div>
+
+            <p class="desc">
+                Ideal for professionals and growing businesses.
+            </p>
+
+            <ul class="features">
+                <li>Unlimited Projects</li>
+                <li>100GB Storage</li>
+                <li>Priority Support</li>
+                <li>Advanced Analytics</li>
+                <li>Team Collaboration</li>
+            </ul>
+
+            <a href="#" class="btn">Start Pro</a>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="card">
+            <h2 class="plan">Enterprise</h2>
+            <div class="price">₹4,999</div>
+            <div class="period">per month</div>
+
+            <p class="desc">
+                Built for large teams and enterprise-scale operations.
+            </p>
+
+            <ul class="features">
+                <li>Unlimited Everything</li>
+                <li>Dedicated Manager</li>
+                <li>24/7 Premium Support</li>
+                <li>Custom Integrations</li>
+                <li>Enterprise Security</li>
+            </ul>
+
+            <a href="#" class="btn">Contact Sales</a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
