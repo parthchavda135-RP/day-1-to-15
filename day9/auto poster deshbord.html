@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Auto-Poster Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f5f3;
+      --surface: #ffffff;
+      --surface2: #f0efeb;
+      --border: rgba(0,0,0,0.1);
+      --border2: rgba(0,0,0,0.18);
+      --text: #1a1a18;
+      --text2: #6b6b67;
+      --text3: #999993;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --info-bg: #E6F1FB;
+      --info-text: #185FA5;
+      --green: #1D9E75;
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --mono: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .header { margin-bottom: 2rem; }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header h1 i { font-size: 22px; color: #D85A30; }
+    .header p { font-size: 13px; color: var(--text2); margin-top: 5px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .metric {
+      background: var(--surface2);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+    }
+    .metric-label {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .metric-value {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .metric-value.green { color: var(--green); }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .fact-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 4px;
+    }
+    .fact-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .fact-item:hover { background: var(--surface2); }
+
+    .fact-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--info-bg);
+      color: var(--info-text);
+      font-size: 11px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .fact-text { font-size: 14px; color: var(--text); line-height: 1.55; }
+
+    textarea {
+      width: 100%;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--surface2);
+      resize: vertical;
+      min-height: 100px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    textarea:focus { border-color: rgba(0,0,0,0.35); }
+
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-family: var(--font);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 0.5px solid var(--border2);
+      color: var(--text2);
+    }
+    .btn-secondary:hover { background: var(--surface2); }
+
+    .btn-primary {
+      background: var(--text);
+      border: none;
+      color: #fff;
+      margin-left: auto;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .console-wrap {
+      background: #141414;
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .console-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .console-title { font-size: 11px; color: #555; font-family: var(--mono); margin-left: 4px; }
+    .console-body { font-family: var(--mono); font-size: 12px; min-height: 60px; }
+    .console-empty { color: #444; }
+
+    .log-entry { margin-bottom: 10px; }
+    .log-time { color: #555; }
+    .log-label { color: #5DCAA5; }
+    .log-json { color: #AFA9EC; word-break: break-all; white-space: pre-wrap; display: block; margin-top: 4px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .tag-live { background: #FAECE7; color: #993C1D; }
+    .tag-dot { width: 6px; height: 6px; border-radius: 50%; background: #D85A30; }
+
+    .spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 2px solid var(--text2);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-facts {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text2);
+      padding: 8px 0;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--text);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 500px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      .grid .metric:last-child { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <h1><i class="ti ti-rocket"></i> Auto-Poster Dashboard</h1>
+      <p>Digital marketing automation — Telegram bot delivery</p>
+    </div>
+
+    <div class="grid">
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-send"></i> Posts sent</div>
+        <div class="metric-value" id="sent-count">0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-circle-check"></i> Success rate</div>
+        <div class="metric-value green" id="success-rate">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-brand-telegram"></i> Channel</div>
+        <div class="metric-value" style="font-size:14px; padding-top:4px;">
+          <span class="tag tag-live"><span class="tag-dot"></span> Live</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-title">AI-generated facts — web development</p>
+    <div class="card" id="facts-container">
+      <div class="loading-facts"><span class="spinner"></span> Generating facts with AI...</div>
+    </div>
+
+    <p class="section-title">Compose &amp; send post</p>
+    <div class="card">
+      <textarea id="post-input" placeholder="Type your message, or click a fact above to use it..."></textarea>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="btn-random">
+          <i class="ti ti-wand"></i> Use random fact
+        </button>
+        <button class="btn btn-primary" id="btn-send">
+          <i class="ti ti-send"></i> Send Automated Post
+        </button>
+      </div>
+    </div>
+
+    <p class="section-title">Console output</p>
+    <div class="console-wrap">
+      <div class="console-header">
+        <div class="dot" style="background:#E24B4A;"></div>
+        <div class="dot" style="background:#EF9F27;"></div>
+        <div class="dot" style="background:#639922;"></div>
+        <span class="console-title">console.log — payload preview</span>
+      </div>
+      <div class="console-body" id="console-output">
+        <span class="console-empty">// Payload will appear here after clicking Send Automated Post</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast">
+    <i class="ti ti-circle-check"></i> <span id="toast-msg">Post sent!</span>
+  </div>
+
+  <script>
+    const CHAT_ID   = -5110533387;
+    const BOT_TOKEN = "8906449121:AAErAYbj8mPojzu2VAX_M-1uly3kJsABOZU";
+
+    let facts = [];
+    let sentCount = 0;
+
+    // ── Load AI facts ──────────────────────────────────────────
+    async function loadFacts() {
+      try {
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 1000,
+            messages: [{
+              role: "user",
+              content: "Generate a JSON array of exactly 5 interesting facts about web development. Return ONLY the raw JSON array, no markdown, no backticks, no explanation. Each element must be a plain string."
+            }]
+          })
+        });
+        const data = await res.json();
+        const text = data.content.map(b => b.text || "").join("");
+        facts = JSON.parse(text.trim());
+      } catch (e) {
+        // Fallback facts if API is unavailable
+        facts = [
+          "HTML was created by Tim Berners-Lee in 1991 as a way to share documents over the internet.",
+          "JavaScript was written in just 10 days by Brendan Eich in 1995 while he was at Netscape.",
+          "CSS was proposed by Håkon Wium Lie in 1994 to separate content from visual presentation.",
+          "Over 95% of all websites use JavaScript on the client side as of 2024.",
+          "The first website ever created by Tim Berners-Lee is still live at info.cern.ch."
+        ];
+      }
+      renderFacts();
+    }
+
+    function renderFacts() {
+      const container = document.getElementById("facts-container");
+      container.innerHTML = facts.map((f, i) => `
+        <div class="fact-item" onclick="useFact(${i})" title="Click to use this fact">
+          <div class="fact-num">${i + 1}</div>
+          <span class="fact-text">${f}</span>
+        </div>
+      `).join("");
+    }
+
+    function useFact(i) {
+      document.getElementById("post-input").value = facts[i];
+      document.getElementById("post-input").focus();
+    }
+
+    // ── Random fact button ─────────────────────────────────────
+    document.getElementById("btn-random").addEventListener("click", () => {
+      if (facts.length) useFact(Math.floor(Math.random() * facts.length));
+    });
+
+    // ── Send button ────────────────────────────────────────────
+    document.getElementById("btn-send").addEventListener("click", () => {
+      const text = document.getElementById("post-input").value.trim();
+      if (!text) {
+        document.getElementById("post-input").focus();
+        showToast("Please enter a message first.", "ti-alert-circle");
+        return;
+      }
+
+      // Build the JSON payload
+      const payload = {
+        chat_id:   CHAT_ID,
+        bot_token: BOT_TOKEN,
+        message:   text,
+        timestamp: new Date().toISOString()
+      };
+
+      const jsonString = JSON.stringify(payload, null, 2);
+
+      // Print to real browser console
+      console.log("Auto-Poster Payload:", jsonString);
+
+      // Update metrics
+      sentCount++;
+      document.getElementById("sent-count").textContent = sentCount;
+      document.getElementById("success-rate").textContent = "100%";
+
+      // Append to on-screen console
+      const timeStr = new Date().toLocaleTimeString("en-US", { hour12: false });
+      const output  = document.getElementById("console-output");
+      if (output.querySelector(".console-empty")) output.innerHTML = "";
+
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      entry.innerHTML = `
+        <span class="log-time">[${timeStr}]</span>
+        <span class="log-label"> Auto-Poster Payload ►</span>
+        <span class="log-json">${jsonString}</span>
+      `;
+      output.prepend(entry);
+
+      // Flash button
+      const btn = document.getElementById("btn-send");
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ti ti-circle-check"></i> Sent!';
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ti ti-send"></i> Send Automated Post';
+      }, 2000);
+
+      showToast("Post logged to console!");
+    });
+
+    // ── Toast helper ───────────────────────────────────────────
+    function showToast(msg, icon = "ti-circle-check") {
+      const toast = document.getElementById("toast");
+      document.getElementById("toast-msg").textContent = msg;
+      toast.querySelector("i").className = "ti " + icon;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+
+    // ── Boot ───────────────────────────────────────────────────
+    loadFacts();
+  </script>
+</body>
+</html>
