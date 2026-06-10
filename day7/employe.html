@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Directory</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    padding: 2.5rem 1rem;
+    color: #111827;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .page-title h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .page-title p {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 3px;
+  }
+
+  .badge-total {
+    background: #ede9fe;
+    color: #5b21b6;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid #ddd6fe;
+  }
+
+  /* ── Stats row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 18px;
+  }
+
+  .stat-card .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .stat-card .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .stat-card .stat-sub {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+
+  /* ── Table card ── */
+  .table-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .toolbar-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    width: 15px; height: 15px;
+    stroke: #9ca3af;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
+
+  #searchInput {
+    height: 34px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0 12px 0 32px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #374151;
+    background: #f9fafb;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  #searchInput:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgba(129,140,248,0.15);
+    background: #fff;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  th {
+    padding: 11px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  th:hover { color: #374151; }
+
+  th .sort-arrow {
+    display: inline-block;
+    margin-left: 4px;
+    opacity: 0.35;
+    font-size: 10px;
+  }
+
+  th.active .sort-arrow { opacity: 1; color: #6366f1; }
+
+  tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f9fafb; }
+
+  td {
+    padding: 14px 20px;
+    font-size: 14px;
+    color: #374151;
+    vertical-align: middle;
+  }
+
+  /* Avatar + name cell */
+  .name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .name-main { font-weight: 600; color: #111827; font-size: 14px; }
+  .name-sub  { font-size: 11px; color: #9ca3af; margin-top: 1px; }
+
+  /* Emp ID */
+  .emp-id {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background: #f3f4f6;
+    color: #374151;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    font-weight: 600;
+  }
+
+  /* Department badge */
+  .dept-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .dept-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Salary bar */
+  .salary-cell { min-width: 160px; }
+
+  .salary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+
+  .salary-amount {
+    font-weight: 700;
+    color: #111827;
+    font-size: 14px;
+  }
+
+  .salary-pct {
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .salary-bar-bg {
+    height: 5px;
+    background: #f3f4f6;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .salary-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+  }
+
+  /* No results */
+  .no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #9ca3af;
+    font-size: 14px;
+    display: none;
+  }
+
+  .table-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #f3f4f6;
+    font-size: 12px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="page-header">
+    <div class="page-title">
+      <h1>Employee Directory</h1>
+      <p>All employee records — DOM-rendered from JSON</p>
+    </div>
+    <div class="badge-total" id="totalBadge">Loading…</div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <span class="toolbar-title">All Employees</span>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search name or dept…">
+      </div>
+    </div>
+
+    <table id="empTable">
+      <thead>
+        <tr>
+          <th data-col="empId">Emp ID <span class="sort-arrow">↕</span></th>
+          <th data-col="name">Name <span class="sort-arrow">↕</span></th>
+          <th data-col="department">Department <span class="sort-arrow">↕</span></th>
+          <th data-col="salary">Salary <span class="sort-arrow">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="empBody"></tbody>
+    </table>
+
+    <div class="no-results" id="noResults">No employees match your search.</div>
+
+    <div class="table-footer">
+      <span id="footerCount"></span>
+      <span>Data rendered via JavaScript DOM manipulation</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   JSON DATA — 5 Dummy Employees
+   ============================================================ */
+const employees = [
+  {
+    "empId": "EMP-1001",
+    "name": "Arjun Sharma",
+    "department": "Engineering",
+    "salary": 95000
+  },
+  {
+    "empId": "EMP-1002",
+    "name": "Priya Nair",
+    "department": "Product",
+    "salary": 88000
+  },
+  {
+    "empId": "EMP-1003",
+    "name": "Rahul Mehta",
+    "department": "Design",
+    "salary": 72000
+  },
+  {
+    "empId": "EMP-1004",
+    "name": "Sneha Kulkarni",
+    "department": "Marketing",
+    "salary": 65000
+  },
+  {
+    "empId": "EMP-1005",
+    "name": "Vikram Iyer",
+    "department": "Engineering",
+    "salary": 105000
+  }
+];
+
+/* ============================================================
+   DEPARTMENT THEME MAP
+   ============================================================ */
+const deptTheme = {
+  Engineering: { bg: '#ede9fe', color: '#5b21b6', dot: '#7c3aed', bar: '#7c3aed', avatar: '#ddd6fe', avatarText: '#5b21b6' },
+  Product:     { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6', bar: '#3b82f6', avatar: '#bfdbfe', avatarText: '#1e40af' },
+  Design:      { bg: '#fce7f3', color: '#9d174d', dot: '#ec4899', bar: '#ec4899', avatar: '#fbcfe8', avatarText: '#9d174d' },
+  Marketing:   { bg: '#d1fae5', color: '#065f46', dot: '#10b981', bar: '#10b981', avatar: '#a7f3d0', avatarText: '#065f46' },
+  HR:          { bg: '#fef3c7', color: '#92400e', dot: '#f59e0b', bar: '#f59e0b', avatar: '#fde68a', avatarText: '#92400e' },
+  Finance:     { bg: '#e0f2fe', color: '#0c4a6e', dot: '#0ea5e9', bar: '#0ea5e9', avatar: '#bae6fd', avatarText: '#0c4a6e' },
+};
+
+const defaultTheme = { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af', bar: '#9ca3af', avatar: '#e5e7eb', avatarText: '#374151' };
+
+function getTheme(dept) { return deptTheme[dept] || defaultTheme; }
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function initials(name) {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function formatSalary(n) {
+  return '₹' + n.toLocaleString('en-IN');
+}
+
+function salaryPct(salary, max) {
+  return Math.round((salary / max) * 100);
+}
+
+/* ============================================================
+   STATS — DOM manipulation to build summary cards
+   ============================================================ */
+function renderStats(data) {
+  const totalBadge = document.getElementById('totalBadge');
+  totalBadge.textContent = data.length + ' Employees';
+
+  const salaries   = data.map(e => e.salary);
+  const avgSalary  = Math.round(salaries.reduce((a, b) => a + b, 0) / salaries.length);
+  const maxSalary  = Math.max(...salaries);
+  const deptCount  = new Set(data.map(e => e.department)).size;
+
+  const stats = [
+    { label: 'Total Employees', value: data.length,          sub: 'Active headcount' },
+    { label: 'Departments',     value: deptCount,            sub: 'Unique departments' },
+    { label: 'Avg Salary',      value: formatSalary(avgSalary), sub: 'Across all staff' },
+    { label: 'Top Salary',      value: formatSalary(maxSalary), sub: 'Highest earner' },
+  ];
+
+  const statsRow = document.getElementById('statsRow');
+  statsRow.innerHTML = '';
+
+  stats.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.innerHTML =
+      '<div class="stat-label">' + s.label + '</div>' +
+      '<div class="stat-value">' + s.value + '</div>' +
+      '<div class="stat-sub">'   + s.sub   + '</div>';
+    statsRow.appendChild(card);
+  });
+}
+
+/* ============================================================
+   TABLE — DOM manipulation to build rows from JSON
+   ============================================================ */
+let sortCol = null;
+let sortAsc = true;
+
+function renderTable(data) {
+  const tbody    = document.getElementById('empBody');
+  const noRes    = document.getElementById('noResults');
+  const footer   = document.getElementById('footerCount');
+  const maxSal   = Math.max(...employees.map(e => e.salary));
+
+  tbody.innerHTML = '';
+
+  if (data.length === 0) {
+    noRes.style.display  = 'block';
+    footer.textContent   = 'Showing 0 of ' + employees.length + ' employees';
+    return;
+  }
+
+  noRes.style.display = 'none';
+  footer.textContent  = 'Showing ' + data.length + ' of ' + employees.length + ' employee' + (employees.length !== 1 ? 's' : '');
+
+  data.forEach(emp => {
+    const theme = getTheme(emp.department);
+    const pct   = salaryPct(emp.salary, maxSal);
+
+    const tr = document.createElement('tr');
+
+    /* Emp ID cell */
+    const tdId = document.createElement('td');
+    const idSpan = document.createElement('span');
+    idSpan.className   = 'emp-id';
+    idSpan.textContent = emp.empId;
+    tdId.appendChild(idSpan);
+
+    /* Name cell */
+    const tdName = document.createElement('td');
+    const nameCell = document.createElement('div');
+    nameCell.className = 'name-cell';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.style.background = theme.avatar;
+    avatar.style.color      = theme.avatarText;
+    avatar.textContent      = initials(emp.name);
+
+    const nameInfo   = document.createElement('div');
+    const nameMain   = document.createElement('div');
+    nameMain.className   = 'name-main';
+    nameMain.textContent = emp.name;
+
+    const nameSub    = document.createElement('div');
+    nameSub.className   = 'name-sub';
+    nameSub.textContent = emp.department;
+
+    nameInfo.appendChild(nameMain);
+    nameInfo.appendChild(nameSub);
+    nameCell.appendChild(avatar);
+    nameCell.appendChild(nameInfo);
+    tdName.appendChild(nameCell);
+
+    /* Department cell */
+    const tdDept  = document.createElement('td');
+    const badge   = document.createElement('span');
+    badge.className       = 'dept-badge';
+    badge.style.background = theme.bg;
+    badge.style.color      = theme.color;
+
+    const dot = document.createElement('span');
+    dot.className        = 'dept-dot';
+    dot.style.background = theme.dot;
+
+    badge.appendChild(dot);
+    badge.appendChild(document.createTextNode(emp.department));
+    tdDept.appendChild(badge);
+
+    /* Salary cell */
+    const tdSal   = document.createElement('td');
+    tdSal.className = 'salary-cell';
+
+    const salTop  = document.createElement('div');
+    salTop.className = 'salary-top';
+
+    const salAmt  = document.createElement('span');
+    salAmt.className   = 'salary-amount';
+    salAmt.textContent = formatSalary(emp.salary);
+
+    const salPct  = document.createElement('span');
+    salPct.className   = 'salary-pct';
+    salPct.textContent = pct + '%';
+
+    salTop.appendChild(salAmt);
+    salTop.appendChild(salPct);
+
+    const barBg   = document.createElement('div');
+    barBg.className = 'salary-bar-bg';
+
+    const barFill = document.createElement('div');
+    barFill.className        = 'salary-bar-fill';
+    barFill.style.width      = pct + '%';
+    barFill.style.background = theme.bar;
+
+    barBg.appendChild(barFill);
+    tdSal.appendChild(salTop);
+    tdSal.appendChild(barBg);
+
+    tr.appendChild(tdId);
+    tr.appendChild(tdName);
+    tr.appendChild(tdDept);
+    tr.appendChild(tdSal);
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+document.getElementById('searchInput').addEventListener('input', function () {
+  const q = this.value.toLowerCase().trim();
+  const filtered = employees.filter(e =>
+    e.name.toLowerCase().includes(q) ||
+    e.department.toLowerCase().includes(q) ||
+    e.empId.toLowerCase().includes(q)
+  );
+  renderTable(filtered);
+});
+
+/* ============================================================
+   SORT
+   ============================================================ */
+document.querySelectorAll('th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+
+    document.querySelectorAll('th').forEach(t => t.classList.remove('active'));
+    th.classList.add('active');
+    th.querySelector('.sort-arrow').textContent = sortAsc ? '↑' : '↓';
+
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    let data = employees.filter(e =>
+      e.name.toLowerCase().includes(q) ||
+      e.department.toLowerCase().includes(q) ||
+      e.empId.toLowerCase().includes(q)
+    );
+
+    data.sort((a, b) => {
+      let va = a[col], vb = b[col];
+      if (typeof va === 'string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+      return sortAsc ? va - vb : vb - va;
+    });
+
+    renderTable(data);
+  });
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderStats(employees);
+renderTable(employees);
+</script>
+</body>
+</html>
